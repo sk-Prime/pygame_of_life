@@ -8,7 +8,7 @@ class Config():
         self.screen_h = 1440
         
         self.cell_size = 10
-
+        self.font_size = 20
         
         #gap between cells
         self.gap = 2
@@ -32,6 +32,7 @@ class Config():
     def add_screen_info(self,w,h):
         self.screen_w=w
         self.screen_h=h
+        
 conf = Config()
 
 class Life():
@@ -104,7 +105,7 @@ class Life():
                     
                 if self[temp_x,temp_y]: #if neighbour is alive
                     neighbour+=1 #increasing member
-        #neighbours are surviving range. not too or less populated
+        #neighbours are in surviving range. not too or less populated
         if conf.min_neighbour<=neighbour<=conf.max_neighbour and cell:
             return 1 #remain 1 or alive
         elif neighbour==conf.resurrect and not cell:
@@ -131,7 +132,7 @@ class Life():
         for y in range(self.y):
             for x in range(self.x):
                 temp_grid[y][x]=self.apply_rules(x,y)
-        #assigning grid to new grid after applying rules.
+        #assigning grid with new grid after applying rules.
         #next iteration will be on this latest situtation of the grid
         self.grid=temp_grid
 
@@ -139,7 +140,7 @@ class Life_2d(Life):
     def __init__(self,x,y,grid,screen):
         super().__init__(x,y,grid)
         self.screen = screen
-        #cell/rect will be drawn from at this postion in a given screen.
+        #cell/rect will be drawn from at this postion on a given screen.
         self.grid_x = 0 
         self.grid_y = 0
         
@@ -186,7 +187,7 @@ class Game():
         self.world.calc_grid_position()
         self.__draw = False #drawing mode or playing mode
         
-        self.font = pygame.font.SysFont("arial",30)
+        self.font = pygame.font.SysFont("arial",conf.font_size)
         
         self.bx,self.by,self.bw,self.bh = conf.button_pos
         self.cx,self.cy,self.cw, self.ch = conf.clear_button_pos
@@ -239,24 +240,24 @@ class Game():
                 self.world[x,y] = not self.world[x,y]
 
 
-
-
 if __name__=="__main__":
     pygame.init()
+    
+    screen_size = (600,600)
+    conf.cell_size=5
+    conf.gap=1
+    
+    conf.seamless=True
     in_pc = True
     if in_pc:
-        conf.add_screen_info(600,600)
-        conf.button_pos=0,conf.screen_h-50,100,35
+        conf.add_screen_info(*screen_size)
+        conf.button_pos=10,conf.screen_h-50,100,35
         conf.clear_button_pos=120,conf.screen_h-50,100,35
     else:
         conf.add_screen_info(720,1440)
     
     screen = pygame.display.set_mode((conf.screen_w,conf.screen_h))
     
-    conf.seamless=True
-    conf.cell_size=15
-    conf.gap=1
-
     game=Game(screen)
     game.set_draw(True)
     #game.random_cell(n=100)
@@ -269,5 +270,6 @@ if __name__=="__main__":
                 sysexit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 game.listen(event.pos)
+
         game.life_loop()
         pygame.display.flip()
